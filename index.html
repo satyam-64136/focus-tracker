@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Focus40 — Study Tracker</title>
+<meta name="description" content="A minimalist 40-day study tracker to build consistency and focus.">
+<meta name="theme-color" content="#4ade80">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Focus40">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
+<!-- No external SDK needed — sync uses JSONBin.io REST API -->
+<style>
+/* ===========================
+   CSS VARIABLES & RESET
+   (UNCHANGED from original)
+=========================== */
+:root {
+  --bg: #0a0a0a;
+  --bg2: #111111;
+  --bg3: #181818;
+  --border: #222222;
+  --border2: #2a2a2a;
+  --text: #f0f0f0;
+  --text2: #888888;
+  --text3: #555555;
+  --green: #4ade80;
+  --green-dim: #1a3a28;
+  --green-glow: rgba(74, 222, 128, 0.15);
+  --blue: #60a5fa;
+  --blue-dim: #1a2a3a;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===========================
+   SCROLLBAR
+=========================== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ===========================
+   TYPOGRAPHY
+=========================== */
+h1, h2, h3, h4 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* ===========================
+   LAYOUT
+=========================== */
+.app {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 1fr;
+  min-height: 100vh;
+}
+
+/* ===========================
+   SIDEBAR
+=========================== */
+.sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--green);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: var(--text3);
+  text-transform: uppercase;
+  padding: 16px 8px 4px;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+  width: 100%;
+}
+
+.nav-btn:hover {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+.nav-btn.active {
+  background: var(--green-dim);
+  color: var(--green);
+  font-weight: 500;
+}
+
+.nav-btn .icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.nav-btn.active .icon { opacity: 1; }
+
+.sidebar-bottom {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+/* Streak badge in sidebar */
+.streak-badge {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.streak-badge .fire { font-size: 20px; }
+.streak-badge .streak-info { flex: 1; }
+.streak-badge .streak-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+}
+.streak-badge .streak-label {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+/* ─── SYNC STATUS PILL (new, minimal) ─── */
+.sync-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text3);
+  transition: all var(--transition);
+}
+.sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text3);
+  flex-shrink: 0;
+  transition: background var(--transition), box-shadow var(--transition);
+}
+.sync-pill.synced   .sync-dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.sync-pill.syncing  .sync-dot { background: var(--amber); animation: pulse 0.8s ease-in-out infinite; }
+.sync-pill.error    .sync-dot { background: var(--red); }
+.sync-pill.synced   { color: var(--green); border-color: var(--green-dim); }
+.sync-pill.syncing  { color: var(--amber); }
+.sync-pill.error    { color: var(--red); }
+
+/* ===========================
+   MAIN CONTENT
+=========================== */
+.main {
+  padding: 40px 48px;
+  max-width: 900px;
+  width: 100%;
+}
+
+/* Page section */
+.section { display: none; animation: fadeIn 0.3s ease; }
+.section.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===========================
+   PAGE HEADER
+=========================== */
+.page-header { margin-bottom: 36px; }
+
+.page-header h1 {
+  font-size: 30px;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.page-header p {
+  color: var(--text2);
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+/* ===========================
+   CARDS
+=========================== */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: border-color var(--transition);
+}
+
+.card:hover { border-color: var(--border2); }
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.stat-card .stat-label {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+.stat-card .stat-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-card .stat-sub {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+.stat-card.accent-green { border-color: var(--green-dim); }
+.stat-card.accent-green .stat-value { color: var(--green); }
+.stat-card.accent-amber .stat-value { color: var(--amber); }
+
+/* ===========================
+   PROGRESS BAR
+=========================== */
+.progress-section { margin-bottom: 32px; }
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.progress-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.progress-pct {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.progress-bar-track {
+  height: 4px;
+  background: var(--bg3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px var(--green);
+}
+
+/* ===========================
+   DASHBOARD
+=========================== */
+.dashboard-hero {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(74,222,128,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-day {
+  font-family: 'Syne', sans-serif;
+  font-size: 64px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.hero-day span { color: var(--green); }
+.hero-subtitle {
+  color: var(--text2);
+  margin-top: 6px;
+  font-size: 15px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+/* ===========================
+   BUTTONS
+=========================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  letter-spacing: 0.2px;
+}
+
+.btn-primary { background: var(--green); color: #0a0a0a; }
+.btn-primary:hover {
+  background: #6ee7a0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(74,222,128,0.3);
+}
+
+.btn-secondary { background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); }
+.btn-secondary:hover { background: var(--bg2); color: var(--text); border-color: var(--text3); }
+
+.btn-danger { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.2); color: var(--red); }
+.btn-danger:hover { background: rgba(248,113,113,0.2); }
+
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-icon {
+  width: 32px; height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-size: 14px;
+}
+.btn-icon:hover { background: var(--bg2); color: var(--text); border-color: var(--border2); }
+
+/* ===========================
+   MOOD SELECTOR
+=========================== */
+.mood-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.mood-option {
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mood-option:hover { border-color: var(--border2); color: var(--text); }
+.mood-option.selected { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+
+/* ===========================
+   DAILY TRACKER
+=========================== */
+.day-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.day-selector h2 { font-size: 22px; letter-spacing: -0.3px; }
+
+.day-nav { display: flex; gap: 6px; margin-left: auto; }
+
+/* Task list */
+.task-list { display: flex; flex-direction: column; gap: 10px; }
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+  cursor: pointer;
+  user-select: none;
+}
+
+.task-item:hover { border-color: var(--border2); }
+
+.task-item.done { background: var(--green-dim); border-color: rgba(74,222,128,0.2); }
+
+.task-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border2);
+  background: var(--bg3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition);
+  font-size: 12px;
+}
+
+.task-item.done .task-check {
+  background: var(--green);
+  border-color: var(--green);
+  color: #0a0a0a;
+  animation: checkPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes checkPop {
+  0% { transform: scale(0.6); }
+  100% { transform: scale(1); }
+}
+
+.task-text { flex: 1; font-size: 14px; color: var(--text); transition: color var(--transition); }
+
+.task-item.done .task-text { color: var(--green); text-decoration: line-through; opacity: 0.75; }
+
+.task-time { font-size: 11px; color: var(--text3); background: var(--bg3); border-radius: 4px; padding: 2px 8px; }
+.task-item.done .task-time { opacity: 0.4; }
+
+/* Add task input */
+.add-task-row { display: flex; gap: 8px; margin-top: 14px; }
+
+.input-field {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color var(--transition);
+  min-width: 0; /* prevents overflow on mobile */
+}
+
+.input-field::placeholder { color: var(--text3); }
+.input-field:focus { border-color: var(--green); }
+
+/* ===========================
+   DISTRACTION TRACKER
+=========================== */
+.distraction-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.distraction-count {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--red);
+  min-width: 48px;
+}
+
+.distraction-info { flex: 1; min-width: 80px; }
+.distraction-info .label { font-size: 13px; color: var(--text2); }
+
+/* ===========================
+   HEATMAP
+=========================== */
+.heatmap {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 5px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+}
+
+.heatmap-cell:hover { transform: scale(1.1); z-index: 2; border-color: var(--border2); }
+
+.heatmap-cell[data-level="0"] { background: var(--bg3); }
+.heatmap-cell[data-level="1"] { background: rgba(74,222,128,0.15); border-color: rgba(74,222,128,0.2); color: rgba(74,222,128,0.5); }
+.heatmap-cell[data-level="2"] { background: rgba(74,222,128,0.30); border-color: rgba(74,222,128,0.4); color: rgba(74,222,128,0.7); }
+.heatmap-cell[data-level="3"] { background: rgba(74,222,128,0.50); border-color: rgba(74,222,128,0.6); color: #0a0a0a; }
+.heatmap-cell[data-level="4"] { background: var(--green); border-color: var(--green); color: #0a0a0a; box-shadow: 0 0 8px var(--green-glow); }
+
+.heatmap-cell.current { outline: 2px solid var(--green); outline-offset: 2px; }
+
+/* ===========================
+   MOOD HISTORY
+=========================== */
+.mood-history { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 14px; }
+
+.mood-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: default;
+  transition: transform var(--transition);
+}
+
+.mood-dot:hover { transform: scale(1.2); }
+
+/* ===========================
+   SUGGESTIONS BANNER
+=========================== */
+.suggestion-banner {
+  background: linear-gradient(135deg, rgba(74,222,128,0.08), rgba(96,165,250,0.06));
+  border: 1px solid rgba(74,222,128,0.15);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.suggestion-icon { font-size: 20px; flex-shrink: 0; }
+.suggestion-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.suggestion-text strong { color: var(--green); }
+
+/* ===========================
+   REMINDER SECTION
+=========================== */
+.reminder-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 24px;
+}
+
+.reminder-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.input-field-time {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color var(--transition);
+  color-scheme: dark;
+}
+
+.input-field-time:focus { border-color: var(--green); }
+
+/* ===========================
+   TOAST
+=========================== */
+.toast-container {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: auto;
+  max-width: 280px;
+}
+
+.toast.success { border-left: 3px solid var(--green); }
+.toast.info    { border-left: 3px solid var(--blue); }
+.toast.warning { border-left: 3px solid var(--amber); }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes toastOut {
+  to { opacity: 0; transform: translateX(20px) scale(0.95); }
+}
+.toast.out { animation: toastOut 0.25s ease forwards; }
+
+/* ===========================
+   SECTION TITLE
+=========================== */
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text3);
+  margin-bottom: 14px;
+  margin-top: 32px;
+}
+.section-title:first-child { margin-top: 0; }
+
+/* ===========================
+   STATS PAGE
+=========================== */
+.stats-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 80px;
+  margin-top: 12px;
+}
+
+.chart-bar {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: var(--green);
+  opacity: 0.6;
+  min-width: 6px;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+.chart-bar:hover { opacity: 1; }
+
+/* ===========================
+   SETTINGS
+=========================== */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.settings-row:last-child { border-bottom: none; }
+
+.settings-label { font-size: 14px; color: var(--text); }
+.settings-sub   { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+/* Toggle switch */
+.toggle-switch { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  left: 2px; top: 2px;
+  background: var(--text3);
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--green-dim); border-color: var(--green); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); background: var(--green); }
+
+/* ===========================
+   DANGER ZONE
+=========================== */
+.danger-zone {
+  margin-top: 32px;
+  padding: 20px;
+  border: 1px solid rgba(248,113,113,0.15);
+  border-radius: var(--radius);
+  background: rgba(248,113,113,0.03);
+}
+.danger-zone h3 { color: var(--red); font-size: 14px; margin-bottom: 8px; }
+.danger-zone p  { font-size: 13px; color: var(--text3); margin-bottom: 14px; }
+
+/* ===========================
+   MOBILE RESPONSIVE FIX
+=========================== */
+
+/* ── Tablet: 768px and below ── */
+@media (max-width: 768px) {
+
+  /* 1. ROOT LAYOUT — single column, sidebar becomes bottom nav */
+  .app {
+    display: block; /* drop grid so .main fills full width */
+    min-height: 100vh;
+  }
+
+  /* 2. SIDEBAR → fixed bottom navigation bar */
+  .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    height: auto;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    padding: 8px 8px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    z-index: 200;
+    border-top: 1px solid var(--border);
+    border-right: none;
+    border-bottom: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0;
+    /* Prevent sidebar itself from scrolling horizontally and causing layout shift */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hide sidebar elements that don't belong in the bottom bar */
+  .logo,
+  .sidebar-section-label,
+  .streak-badge,
+  .sidebar-bottom,
+  .sync-pill {
+    display: none !important;
+  }
+
+  /* Nav buttons in bottom bar: icon stacked above label */
+  .nav-btn {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 12px;
+    font-size: 10px;
+    min-width: 0;
+    flex: 1;
+    width: auto;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    /* Larger tap target */
+    min-height: 52px;
+  }
+
+  .nav-btn .icon {
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
+  }
+
+  .nav-btn.active .icon { opacity: 1; }
+
+  /* 3. MAIN — fill full width, clear bottom nav */
+  .main {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px 16px 20px 16px;
+    /* Extra space at bottom so last element isn't hidden under nav bar */
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    overflow-x: hidden;
+  }
+
+  /* 4. PAGE HEADER */
+  .page-header { margin-bottom: 24px; }
+  .page-header h1 { font-size: 22px; letter-spacing: -0.3px; }
+  .page-header p  { font-size: 13px; }
+
+  /* 5. DASHBOARD HERO */
+  .dashboard-hero { padding: 20px 18px; margin-bottom: 20px; }
+  .hero-day {
+    font-size: 44px;
+    letter-spacing: -1.5px;
+  }
+  .hero-day span { font-size: inherit; }
+  .hero-subtitle { font-size: 13px; margin-top: 4px; }
+  .hero-actions {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* 6. STAT CARDS — 2 columns on tablet */
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card { padding: 14px; }
+  .stat-card .stat-value { font-size: 22px; }
+  .stat-card .stat-label { font-size: 10px; }
+  .stat-card .stat-sub   { font-size: 11px; }
+
+  /* 7. PROGRESS */
+  .progress-section { margin-bottom: 20px; }
+  .progress-title { font-size: 11px; letter-spacing: 1px; }
+
+  /* 8. CARD padding reduction */
+  .card { padding: 16px; }
+
+  /* 9. MOOD SELECTOR — full width pills */
+  .mood-selector { gap: 6px; }
+  .mood-option {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  /* 10. HEATMAP — 8 columns so cells stay tappable */
+  .heatmap {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+  }
+  .heatmap-cell { font-size: 8px; border-radius: 4px; }
+
+  /* 11. TRACKER — day selector */
+  .day-selector {
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  .day-selector h2 { font-size: 18px; }
+  .day-nav { gap: 4px; }
+
+  /* 12. TASK ITEMS */
+  .task-item {
+    padding: 12px 12px;
+    gap: 10px;
+  }
+  .task-text { font-size: 13px; }
+  .task-time { display: none; } /* hide time badge on mobile to save space */
+
+  /* Bigger tap target for delete button */
+  .task-item .btn-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+
+  /* 13. ADD TASK ROW */
+  .add-task-row {
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .input-field { font-size: 14px; padding: 10px 12px; }
+
+  /* 14. DISTRACTION ROW */
+  .distraction-row {
+    padding: 12px 14px;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .distraction-count { font-size: 24px; min-width: 32px; }
+  .distraction-info  { flex: 1; min-width: 80px; }
+  /* Stack log/reset buttons */
+  .distraction-row .btn-sm { flex: 1; justify-content: center; }
+
+  /* 15. SECTION TITLE */
+  .section-title { margin-top: 20px; margin-bottom: 10px; }
+
+  /* 16. STATS CHARTS */
+  .stats-chart { height: 60px; gap: 2px; }
+  .chart-bar   { min-width: 4px; }
+
+  /* 17. REMINDER CARD */
+  .reminder-card { padding: 16px; margin-bottom: 16px; }
+  .reminder-card h3 { font-size: 14px; }
+  .time-input-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .input-field-time {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 15px;
+  }
+  /* Make reminder buttons full width on mobile */
+  .time-input-row .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* 18. SETTINGS ROWS */
+  .settings-row {
+    align-items: flex-start;
+    padding: 12px 0;
+    gap: 12px;
+  }
+  .settings-label { font-size: 13px; }
+  .settings-sub   { font-size: 11px; }
+
+  /* Toggle: keep it at the right, don't stretch */
+  .toggle-switch { flex-shrink: 0; }
+
+  /* 19. DANGER ZONE */
+  .danger-zone { padding: 16px; margin-top: 20px; }
+  .danger-zone .btn { width: 100%; justify-content: center; }
+
+  /* 20. TOAST — sits above bottom nav */
+  .toast-container {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    right: 12px;
+    left: 12px;
+  }
+  .toast { max-width: 100%; font-size: 12px; padding: 10px 14px; }
+
+  /* 21. SUGGESTION BANNER */
+  .suggestion-banner { padding: 12px 14px; gap: 10px; }
+  .suggestion-icon   { font-size: 16px; }
+  .suggestion-text   { font-size: 12px; }
+
+  /* 22. DEFAULT TASKS LIST in settings */
+  #default-tasks-list .btn-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* 23. NOTIF PERMISSION BAR */
+  #notif-permission-bar .btn { margin-left: 0 !important; margin-top: 8px; }
+  #notif-permission-bar {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* 24. APPLY DEFAULTS button — full width */
+  #default-tasks-list + .add-task-row + .btn,
+  .card > .btn-primary { width: 100%; justify-content: center; }
+}
+
+/* ── Mobile phones: 480px and below ── */
+@media (max-width: 480px) {
+
+  /* Tighten main padding */
+  .main {
+    padding: 16px 14px;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Hero: even more compact */
+  .dashboard-hero { padding: 16px 14px; }
+  .hero-day       { font-size: 38px; letter-spacing: -1px; }
+  .hero-subtitle  { font-size: 12px; }
+
+  /* Page header */
+  .page-header h1 { font-size: 20px; }
+  .page-header    { margin-bottom: 18px; }
+
+  /* Cards: keep 2 cols but tighter */
+  .cards-grid { gap: 8px; margin-bottom: 16px; }
+  .stat-card  { padding: 12px; }
+  .stat-card .stat-value { font-size: 20px; }
+
+  /* Progress */
+  .progress-section { margin-bottom: 16px; }
+
+  /* Heatmap: fit on very small screens */
+  .heatmap { grid-template-columns: repeat(8, 1fr); gap: 3px; }
+  .heatmap-cell { font-size: 7px; }
+
+  /* Day selector */
+  .day-selector h2 { font-size: 16px; }
+
+  /* Task items */
+  .task-item  { padding: 10px 10px; gap: 8px; }
+  .task-check { width: 20px; height: 20px; }
+
+  /* Distraction */
+  .distraction-row  { padding: 10px 12px; }
+  .distraction-count { font-size: 20px; min-width: 28px; }
+
+  /* Section title */
+  .section-title { margin-top: 16px; }
+
+  /* Card */
+  .card { padding: 14px; }
+
+  /* Nav buttons: tighter */
+  .nav-btn { padding: 6px 6px; font-size: 9px; min-height: 48px; }
+  .nav-btn .icon { width: 18px; height: 18px; }
+
+  /* Reminder */
+  .reminder-card { padding: 14px; }
+  .input-field-time { font-size: 14px; }
+
+  /* Stats chart: shorter on tiny screens */
+  .stats-chart { height: 50px; }
+
+  /* Mood options: wrap if needed */
+  .mood-option { font-size: 11px; padding: 7px 8px; }
+}
+
+/* ── Small phones: 360px and below ── */
+@media (max-width: 360px) {
+  .main { padding: 14px 12px; padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  .hero-day       { font-size: 32px; }
+  .page-header h1 { font-size: 18px; }
+  .cards-grid     { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .stat-card .stat-value { font-size: 18px; }
+  .heatmap { grid-template-columns: repeat(8, 1fr); gap: 2px; }
+  .nav-btn { font-size: 8px; padding: 6px 4px; }
+  .nav-btn .icon { width: 16px; height: 16px; }
+  .task-text { font-size: 12px; }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="logo"><div class="logo-dot"></div> Focus<span style="color:var(--green)">40</span></div>
+
+    <div class="sidebar-section-label">Navigate</div>
+    <button class="nav-btn active" data-section="dashboard" onclick="navigate('dashboard')">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-btn" data-section="tracker" onclick="navigate('tracker')">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Daily Tracker
+    </button>
+    <button class="nav-btn" data-section="stats" onclick="navigate('stats')">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Stats
+    </button>
+    <button class="nav-btn" data-section="settings" onclick="navigate('settings')">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M17.66 17.66l-1.41-1.41M6.34 17.66l1.41-1.41"/></svg>
+      Settings
+    </button>
+
+    <div class="sidebar-bottom">
+      <div class="streak-badge">
+        <span class="fire">🔥</span>
+        <div class="streak-info">
+          <div class="streak-num" id="sidebar-streak">0</div>
+          <div class="streak-label">day streak</div>
+        </div>
+      </div>
+      <!-- Sync status — desktop only (hidden on mobile) -->
+      <div class="sync-pill" id="sync-pill">
+        <div class="sync-dot"></div>
+        <span id="sync-label">Offline</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <main class="main">
+
+    <!-- ========== DASHBOARD ========== -->
+    <div id="section-dashboard" class="section active">
+      <div class="page-header">
+        <h1>Good <span id="greeting-time">morning</span> ✦</h1>
+        <p id="today-date">Loading...</p>
+      </div>
+
+      <div id="suggestion-area"></div>
+
+      <div class="dashboard-hero">
+        <div class="hero-day">Day <span id="current-day-num">1</span><span style="color:var(--text3);font-size:36px">/40</span></div>
+        <div class="hero-subtitle" id="hero-subtitle">Start your journey today</div>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="navigate('tracker')">📋 Open Today's Tasks</button>
+          <button class="btn btn-secondary" onclick="logDistraction()">😵 Got Distracted</button>
+        </div>
+      </div>
+
+      <div class="cards-grid">
+        <div class="stat-card accent-green">
+          <div class="stat-label">Completed Days</div>
+          <div class="stat-value" id="dash-completed">0</div>
+          <div class="stat-sub">out of 40</div>
+        </div>
+        <div class="stat-card accent-amber">
+          <div class="stat-label">Current Streak</div>
+          <div class="stat-value" id="dash-streak">0 🔥</div>
+          <div class="stat-sub">consecutive days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Best Streak</div>
+          <div class="stat-value" id="dash-best">0</div>
+          <div class="stat-sub">days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Distractions</div>
+          <div class="stat-value" id="dash-distractions">0</div>
+          <div class="stat-sub">today</div>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="progress-title">Overall Progress</span>
+          <span class="progress-pct" id="dash-pct">0%</span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="dash-progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="section-title">Today's Mood</div>
+      <div class="card" style="margin-bottom:24px;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">How are you feeling before your study session?</div>
+        <div class="mood-selector" id="dash-mood-selector">
+          <div class="mood-option" data-mood="low"     onclick="setMood('low')">😴 Low</div>
+          <div class="mood-option" data-mood="normal"  onclick="setMood('normal')">😐 Normal</div>
+          <div class="mood-option" data-mood="focused" onclick="setMood('focused')">🔥 Focused</div>
+        </div>
+      </div>
+
+      <div class="section-title">40-Day Heatmap</div>
+      <div class="card">
+        <div class="heatmap" id="heatmap-grid"></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:14px;font-size:11px;color:var(--text3);">
+          <span>Less</span>
+          <div style="width:12px;height:12px;border-radius:3px;background:var(--bg3);border:1px solid var(--border)"></div>
+          <div style="width:12px;height:12px;border-radius:3px;background:rgba(74,222,128,0.2)"></div>
+          <div style="width:12px;height:12px;border-radius:3px;background:rgba(74,222,128,0.45)"></div>
+          <div style="width:12px;height:12px;border-radius:3px;background:var(--green)"></div>
+          <span>More</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== TRACKER ========== -->
+    <div id="section-tracker" class="section">
+      <div class="page-header">
+        <h1>Daily Tracker</h1>
+        <p>Track your tasks day by day</p>
+      </div>
+
+      <div class="day-selector">
+        <h2>Day <span id="tracker-day-num">1</span></h2>
+        <div class="day-nav">
+          <button class="btn-icon" onclick="changeDay(-1)" title="Previous day">←</button>
+          <button class="btn-icon" onclick="goToToday()"  title="Go to today" style="font-size:11px;width:auto;padding:0 8px;">Today</button>
+          <button class="btn-icon" onclick="changeDay(1)"  title="Next day">→</button>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="progress-title">Day Progress</span>
+          <span class="progress-pct" id="day-pct">0%</span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="day-progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="distraction-row">
+        <div class="distraction-count" id="tracker-distractions">0</div>
+        <div class="distraction-info"><div class="label">Distractions today</div></div>
+        <button class="btn btn-danger  btn-sm" onclick="logDistraction()">+ Log Distraction</button>
+        <button class="btn btn-secondary btn-sm" onclick="resetDayDistractions()">Reset</button>
+      </div>
+
+      <div class="section-title">Tasks</div>
+      <div class="task-list" id="task-list"></div>
+
+      <div class="add-task-row">
+        <input class="input-field" id="new-task-input" type="text" placeholder="Add a task for this day..." onkeydown="if(event.key==='Enter') addTask()">
+        <button class="btn btn-primary btn-sm" onclick="addTask()">+ Add</button>
+      </div>
+    </div>
+
+    <!-- ========== STATS ========== -->
+    <div id="section-stats" class="section">
+      <div class="page-header">
+        <h1>Stats &amp; Insights</h1>
+        <p>Your progress at a glance</p>
+      </div>
+
+      <div class="cards-grid">
+        <div class="stat-card accent-green">
+          <div class="stat-label">Days Completed</div>
+          <div class="stat-value" id="stats-completed">0</div>
+          <div class="stat-sub">out of 40</div>
+        </div>
+        <div class="stat-card accent-amber">
+          <div class="stat-label">Current Streak</div>
+          <div class="stat-value" id="stats-streak">0</div>
+          <div class="stat-sub">days 🔥</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Best Streak</div>
+          <div class="stat-value" id="stats-best">0</div>
+          <div class="stat-sub">days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Distractions</div>
+          <div class="stat-value" id="stats-distractions">0</div>
+          <div class="stat-sub">all time</div>
+        </div>
+      </div>
+
+      <div class="section-title">Completion per Day</div>
+      <div class="card" style="margin-bottom:24px;">
+        <div class="stats-chart" id="stats-chart"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:10px;text-align:center;">Day 1 → 40</div>
+      </div>
+
+      <div class="section-title">Mood History</div>
+      <div class="card" style="margin-bottom:24px;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Your mood across all days</div>
+        <div class="mood-history" id="mood-history-grid"></div>
+      </div>
+
+      <div class="section-title">Distractions per Day</div>
+      <div class="card">
+        <div class="stats-chart" id="distraction-chart"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:10px;text-align:center;">Day 1 → 40</div>
+      </div>
+    </div>
+
+    <!-- ========== SETTINGS ========== -->
+    <div id="section-settings" class="section">
+      <div class="page-header">
+        <h1>Settings</h1>
+        <p>Customize your tracker</p>
+      </div>
+
+      <div class="section-title">Study Reminder</div>
+      <div class="reminder-card">
+        <h3>⏰ Daily Reminder</h3>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Set a daily notification to remind you to study.</div>
+        <div id="notif-permission-bar" style="display:none;margin-bottom:12px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;color:var(--text2);"></div>
+        <div class="time-input-row">
+          <input type="time" class="input-field-time" id="reminder-time" value="09:00">
+          <button class="btn btn-primary btn-sm"   onclick="setReminder()">Set Reminder</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearReminder()">Clear</button>
+        </div>
+        <div id="reminder-status" style="font-size:12px;color:var(--text3);margin-top:10px;"></div>
+      </div>
+
+      <div class="section-title">Default Tasks Template</div>
+      <div class="card" style="margin-bottom:24px;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">These tasks will be used as defaults for new days.</div>
+        <div id="default-tasks-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+        <div class="add-task-row">
+          <input class="input-field" id="new-default-task" type="text" placeholder="Add default task..." onkeydown="if(event.key==='Enter') addDefaultTask()">
+          <button class="btn btn-secondary btn-sm" onclick="addDefaultTask()">+ Add</button>
+        </div>
+        <button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="applyDefaultsToAllDays()">Apply to All Empty Days</button>
+      </div>
+
+      <div class="section-title">Preferences</div>
+      <div class="card" style="margin-bottom:24px;">
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Show in-app alerts</div>
+            <div class="settings-sub">Fallback when notifications are blocked</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="inapp-alerts" checked onchange="savePref()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Smart suggestions</div>
+            <div class="settings-sub">Show tips when you miss days</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="smart-suggestions" checked onchange="savePref()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Cloud sync</div>
+            <div class="settings-sub">Sync data across devices via Firestore</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="cloud-sync" checked onchange="savePref()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="danger-zone">
+        <h3>⚠ Danger Zone</h3>
+        <p>This will erase all your progress, tasks, and stats permanently.</p>
+        <button class="btn btn-danger" onclick="confirmReset()">Reset All Data</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════ -->
+<script>
+/* ============================================================
+   FOCUS40 — COMPLETE APPLICATION SCRIPT
+   Sync: JSONBin.io (free, no account needed to start)
+   Notifications: Native Browser Notification API
+   Storage: localStorage (primary) + JSONBin (cross-device)
+============================================================ */
+
+/* ──────────────────────────────────────────────────────────
+   JSONBIN CONFIG
+   
+   HOW TO GET YOUR FREE BIN ID (takes 60 seconds):
+   1. Go to https://jsonbin.io
+   2. Click "Sign Up Free" (just email + password)
+   3. Click "Create Bin" → paste {} → Save
+   4. Copy the Bin ID from the URL (looks like: 6650abc123...)
+   5. Go to Account → API Keys → copy your Master Key
+   6. Paste both below ↓
+
+   WHY JSONBIN: Free, no credit card, 10k requests/month,
+   works from any browser, no backend needed.
+────────────────────────────────────────────────────────── */
+const JSONBIN_BIN_ID  = '69baf083b7ec241ddc7e5055';
+const JSONBIN_API_KEY = '';   // ← paste your API Master Key here
+const JSONBIN_URL     = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+
+/* ──────────────────────────────────────────────────────────
+   CONSTANTS & STATE
+────────────────────────────────────────────────────────── */
+const STORAGE_KEY = 'focus40_v2';
+const TOTAL_DAYS  = 40;
+
+const DEFAULT_TASKS = [
+  { text: "Review yesterday's notes",      time: '15m' },
+  { text: 'Main study session',            time: '90m' },
+  { text: 'Practice problems / exercises', time: '45m' },
+  { text: 'Summarize what you learned',    time: '10m' },
+];
+
+let state        = loadLocal();
+let currentDay   = getTodayDayIndex();
+let reminderInterval = null;
+
+// Sync throttle: don't push more than once every 3 seconds
+let _syncTimer   = null;
+let _lastPushTs  = 0;
+let _polling     = null;   // setInterval handle for pull-polling
+
+/* ──────────────────────────────────────────────────────────
+   DEFAULT STATE
+────────────────────────────────────────────────────────── */
+function defaultState() {
+  const days = [];
+  for (let i = 0; i < TOTAL_DAYS; i++) {
+    days.push({
+      tasks: DEFAULT_TASKS.map((t, j) => ({
+        id: `d${i}_t${j}`, text: t.text, time: t.time, done: false
+      })),
+      mood: null,
+      distractions: 0,
+    });
+  }
+  return {
+    days,
+    startDate:    new Date().toISOString().split('T')[0],
+    streak:       0,
+    bestStreak:   0,
+    reminderTime: null,
+    defaultTasks: DEFAULT_TASKS.slice(),
+    prefs: { inappAlerts: true, smartSuggestions: true, cloudSync: true },
+    _ts: Date.now(),
+  };
+}
+
+/* ──────────────────────────────────────────────────────────
+   LOCAL STORAGE
+────────────────────────────────────────────────────────── */
+function loadLocal() {
+  try {
+    const r = localStorage.getItem(STORAGE_KEY);
+    if (r) return JSON.parse(r);
+  } catch(e) {}
+  return defaultState();
+}
+
+function saveLocal() {
+  state._ts = Date.now();
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+/* ──────────────────────────────────────────────────────────
+   SAVE = local + throttled cloud push
+────────────────────────────────────────────────────────── */
+function saveState() {
+  saveLocal();
+  if (state.prefs.cloudSync && JSONBIN_BIN_ID && JSONBIN_API_KEY) {
+    schedulePush();
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
+   JSONBIN SYNC — PUSH (write)
+────────────────────────────────────────────────────────── */
+function schedulePush() {
+  // Debounce: wait 1.5s of inactivity before pushing
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(pushToCloud, 1500);
+}
+
+async function pushToCloud() {
+  if (!JSONBIN_BIN_ID || !JSONBIN_API_KEY) return;
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_API_KEY,
+        'X-Bin-Versioning': 'false',   // overwrite, don't version
+      },
+      body: JSON.stringify(state),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    _lastPushTs = Date.now();
+    setSyncStatus('synced');
+  } catch(e) {
+    console.warn('JSONBin push failed:', e.message);
+    setSyncStatus('error');
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
+   JSONBIN SYNC — PULL (read)
+   Called once on load + every 30s for cross-device sync
+────────────────────────────────────────────────────────── */
+async function pullFromCloud() {
+  if (!JSONBIN_BIN_ID || !JSONBIN_API_KEY) return;
+  try {
+    const res = await fetch(JSONBIN_URL + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_API_KEY },
+    });
+    if (!res.ok) return;
+    const json = await res.json();
+    const remote = json.record;
+    if (!remote || !Array.isArray(remote.days)) return;
+
+    // Only apply remote if it's newer than our local state
+    const remoteTs = remote._ts || 0;
+    const localTs  = state._ts  || 0;
+    if (remoteTs > localTs + 2000) {
+      applyRemoteState(remote);
+    } else {
+      setSyncStatus('synced');
+    }
+  } catch(e) {
+    // Silent fail — offline or quota exceeded
+    console.warn('JSONBin pull failed:', e.message);
+  }
+}
+
+function applyRemoteState(remote) {
+  Object.assign(state, remote);
+  saveLocal();
+  // Re-render whatever section is visible
+  const active = document.querySelector('.section.active');
+  if (!active) return;
+  const id = active.id;
+  if (id === 'section-dashboard') renderDashboard();
+  if (id === 'section-tracker')   renderTracker();
+  if (id === 'section-stats')     renderStats();
+  setSyncStatus('synced');
+  toast('Synced ✓', 'success');
+}
+
+function startPolling() {
+  if (_polling) clearInterval(_polling);
+  // Pull every 30 seconds to pick up changes from other devices
+  _polling = setInterval(pullFromCloud, 30000);
+}
+
+function stopPolling() {
+  if (_polling) { clearInterval(_polling); _polling = null; }
+}
+
+/* ──────────────────────────────────────────────────────────
+   SYNC STATUS UI
+────────────────────────────────────────────────────────── */
+function setSyncStatus(status) {
+  const pill  = document.getElementById('sync-pill');
+  const label = document.getElementById('sync-label');
+  if (!pill) return;
+  pill.className = 'sync-pill ' + status;
+  const labels = { synced: 'Synced', syncing: 'Syncing…', error: 'Sync error', offline: 'Offline' };
+  label.textContent = labels[status] || status;
+}
+
+/* ──────────────────────────────────────────────────────────
+   NOTIFICATION PERMISSION
+────────────────────────────────────────────────────────── */
+function updateNotifBar() {
+  const bar = document.getElementById('notif-permission-bar');
+  if (!bar) return;
+  if (!('Notification' in window)) {
+    bar.style.display = 'block';
+    bar.textContent = 'ℹ This browser does not support notifications.';
+    return;
+  }
+  const p = Notification.permission;
+  if (p === 'granted') { bar.style.display = 'none'; return; }
+  bar.style.display = 'block';
+  if (p === 'denied') {
+    bar.textContent = '🔕 Notifications blocked. Enable them in your browser site settings.';
+  } else {
+    bar.innerHTML = '🔔 Enable notifications to get daily study reminders. <button class="btn btn-secondary btn-sm" style="margin-left:8px;" onclick="requestNotifPermission()">Enable</button>';
+  }
+}
+
+async function requestNotifPermission() {
+  const perm = await Notification.requestPermission();
+  updateNotifBar();
+  if (perm === 'granted') {
+    toast('Notifications enabled!', 'success');
+    if (state.reminderTime) scheduleNotification(state.reminderTime);
+  } else {
+    toast('Notifications blocked — in-app alerts will be used instead.', 'warning');
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
+   DAY INDEX HELPERS
+────────────────────────────────────────────────────────── */
+function getTodayDayIndex() {
+  const start = new Date(state.startDate);
+  const today = new Date();
+  start.setHours(0,0,0,0);
+  today.setHours(0,0,0,0);
+  const diff = Math.floor((today - start) / 86400000);
+  return Math.max(0, Math.min(diff, TOTAL_DAYS - 1));
+}
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'morning';
+  if (h < 17) return 'afternoon';
+  return 'evening';
+}
+
+/* ──────────────────────────────────────────────────────────
+   NAVIGATION
+────────────────────────────────────────────────────────── */
+function navigate(section) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + section).classList.add('active');
+  document.querySelector(`[data-section="${section}"]`)?.classList.add('active');
+  if (section === 'dashboard') renderDashboard();
+  if (section === 'tracker')   renderTracker();
+  if (section === 'stats')     renderStats();
+  if (section === 'settings')  renderSettings();
+}
+
+/* ──────────────────────────────────────────────────────────
+   STREAK
+────────────────────────────────────────────────────────── */
+function recalcStreak() {
+  const todayIdx = getTodayDayIndex();
+  let streak = 0;
+  for (let i = todayIdx; i >= 0; i--) {
+    const tasks = state.days[i].tasks;
+    if (!tasks.length) break;
+    if (tasks.every(t => t.done)) streak++;
+    else if (i < todayIdx) break;
+  }
+  state.streak     = streak;
+  state.bestStreak = Math.max(state.bestStreak, streak);
+  saveState();
+}
+
+/* ──────────────────────────────────────────────────────────
+   COMPLETION
+────────────────────────────────────────────────────────── */
+function getDayCompletion(dayIdx) {
+  const tasks = state.days[dayIdx].tasks;
+  if (!tasks.length) return 0;
+  return tasks.filter(t => t.done).length / tasks.length;
+}
+
+function getOverallCompletion() {
+  return state.days.filter((_, i) => getDayCompletion(i) >= 1).length;
+}
+
+function getTodayTaskPct() {
+  return Math.round(getDayCompletion(getTodayDayIndex()) * 100);
+}
+
+/* ──────────────────────────────────────────────────────────
+   RENDER DASHBOARD
+────────────────────────────────────────────────────────── */
+function renderDashboard() {
+  const todayIdx = getTodayDayIndex();
+  recalcStreak();
+
+  document.getElementById('greeting-time').textContent = getGreeting();
+  document.getElementById('today-date').textContent    = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('current-day-num').textContent = todayIdx + 1;
+
+  const pct = getTodayTaskPct();
+  document.getElementById('hero-subtitle').textContent =
+    pct === 100 ? '✓ Today complete — great work!' : `${pct}% of today's tasks done`;
+
+  const completedDays = getOverallCompletion();
+  const overallPct    = Math.round((completedDays / TOTAL_DAYS) * 100);
+
+  document.getElementById('dash-completed').textContent    = completedDays;
+  document.getElementById('dash-streak').textContent       = state.streak + ' 🔥';
+  document.getElementById('dash-best').textContent         = state.bestStreak;
+  document.getElementById('dash-distractions').textContent = state.days[todayIdx].distractions;
+  document.getElementById('dash-pct').textContent          = overallPct + '%';
+  document.getElementById('dash-progress-bar').style.width = overallPct + '%';
+  document.getElementById('sidebar-streak').textContent    = state.streak;
+
+  const mood = state.days[todayIdx].mood;
+  document.querySelectorAll('#dash-mood-selector .mood-option').forEach(el => {
+    el.classList.toggle('selected', el.dataset.mood === mood);
+  });
+
+  renderHeatmap();
+  renderSuggestions();
+}
+
+function renderHeatmap() {
+  const todayIdx = getTodayDayIndex();
+  const grid = document.getElementById('heatmap-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < TOTAL_DAYS; i++) {
+    const pct = getDayCompletion(i);
+    let level = 0;
+    if (pct > 0)    level = 1;
+    if (pct >= 0.5)  level = 2;
+    if (pct >= 0.75) level = 3;
+    if (pct >= 1)    level = 4;
+    const cell = document.createElement('div');
+    cell.className = 'heatmap-cell' + (i === todayIdx ? ' current' : '');
+    cell.setAttribute('data-level', i > todayIdx ? 0 : level);
+    cell.title = `Day ${i+1}: ${Math.round(pct*100)}%`;
+    cell.textContent = i + 1;
+    cell.onclick = () => { currentDay = i; navigate('tracker'); };
+    grid.appendChild(cell);
+  }
+}
+
+function renderSuggestions() {
+  const area = document.getElementById('suggestion-area');
+  if (!state.prefs.smartSuggestions) { area.innerHTML = ''; return; }
+  const todayIdx = getTodayDayIndex();
+  let missed = 0;
+  for (let i = Math.max(0, todayIdx - 3); i < todayIdx; i++) {
+    if (getDayCompletion(i) < 1) missed++;
+  }
+  let msg = '';
+  if (missed >= 2) {
+    msg = `<div class="suggestion-banner"><div class="suggestion-icon">💡</div><div class="suggestion-text"><strong>Catch-up mode:</strong> You've missed a few days. Try a lighter session today — even completing 2 tasks counts as progress!</div></div>`;
+  } else if (missed === 1) {
+    msg = `<div class="suggestion-banner"><div class="suggestion-icon">✨</div><div class="suggestion-text"><strong>Bounce back:</strong> You missed yesterday. No worries — start fresh today. A short session is better than none.</div></div>`;
+  } else if (state.streak >= 5) {
+    msg = `<div class="suggestion-banner"><div class="suggestion-icon">🔥</div><div class="suggestion-text"><strong>On fire!</strong> ${state.streak}-day streak — you're building a great habit. Keep it up!</div></div>`;
+  }
+  area.innerHTML = msg;
+}
+
+/* ──────────────────────────────────────────────────────────
+   MOOD
+────────────────────────────────────────────────────────── */
+function setMood(mood) {
+  state.days[getTodayDayIndex()].mood = mood;
+  saveState();
+  renderDashboard();
+  toast('Mood saved ✓', 'success');
+}
+
+/* ──────────────────────────────────────────────────────────
+   RENDER TRACKER
+────────────────────────────────────────────────────────── */
+function renderTracker() {
+  document.getElementById('tracker-day-num').textContent = currentDay + 1;
+  const day   = state.days[currentDay];
+  const tasks = day.tasks;
+  const donePct = tasks.length
+    ? Math.round((tasks.filter(t => t.done).length / tasks.length) * 100)
+    : 0;
+  document.getElementById('day-pct').textContent          = donePct + '%';
+  document.getElementById('day-progress-bar').style.width = donePct + '%';
+  document.getElementById('tracker-distractions').textContent = day.distractions;
+
+  const list = document.getElementById('task-list');
+  list.innerHTML = '';
+  tasks.forEach(task => {
+    const item = document.createElement('div');
+    item.className = 'task-item' + (task.done ? ' done' : '');
+    item.onclick = () => toggleTask(task.id);
+    item.innerHTML = `
+      <div class="task-check">${task.done ? '✓' : ''}</div>
+      <div class="task-text">${escHtml(task.text)}</div>
+      ${task.time ? `<div class="task-time">${task.time}</div>` : ''}
+      <button class="btn-icon" onclick="event.stopPropagation();deleteTask('${task.id}')" title="Delete" style="margin-left:4px;flex-shrink:0;">✕</button>
+    `;
+    list.appendChild(item);
+  });
+
+  if (!tasks.length) {
+    list.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:16px 0;text-align:center;">No tasks yet. Add one below!</div>';
+  }
+}
+
+function escHtml(s) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* ──────────────────────────────────────────────────────────
+   TASK ACTIONS
+────────────────────────────────────────────────────────── */
+function toggleTask(taskId) {
+  const day  = state.days[currentDay];
+  const task = day.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  task.done = !task.done;
+  saveState();
+  recalcStreak();
+  renderTracker();
+  if (day.tasks.every(t => t.done)) toast('Day ' + (currentDay + 1) + ' complete! 🎉', 'success');
+  else toast('Progress saved', 'success');
+  document.getElementById('sidebar-streak').textContent = state.streak;
+}
+
+function deleteTask(taskId) {
+  state.days[currentDay].tasks = state.days[currentDay].tasks.filter(t => t.id !== taskId);
+  saveState();
+  renderTracker();
+}
+
+function addTask() {
+  const input = document.getElementById('new-task-input');
+  const text  = input.value.trim();
+  if (!text) return;
+  state.days[currentDay].tasks.push({
+    id: `d${currentDay}_t${Date.now()}`, text, time: '', done: false
+  });
+  input.value = '';
+  saveState();
+  renderTracker();
+  toast('Task added', 'info');
+}
+
+function changeDay(delta) {
+  currentDay = Math.max(0, Math.min(TOTAL_DAYS - 1, currentDay + delta));
+  renderTracker();
+}
+
+function goToToday() {
+  currentDay = getTodayDayIndex();
+  renderTracker();
+}
+
+/* ──────────────────────────────────────────────────────────
+   DISTRACTION
+────────────────────────────────────────────────────────── */
+function logDistraction() {
+  const todayIdx = getTodayDayIndex();
+  state.days[todayIdx].distractions++;
+  saveState();
+  document.getElementById('dash-distractions').textContent    = state.days[todayIdx].distractions;
+  document.getElementById('tracker-distractions').textContent = state.days[todayIdx].distractions;
+  toast('Distraction logged. Refocus! 💪', 'warning');
+}
+
+function resetDayDistractions() {
+  state.days[currentDay].distractions = 0;
+  saveState();
+  renderTracker();
+  toast('Distractions reset', 'info');
+}
+
+/* ──────────────────────────────────────────────────────────
+   RENDER STATS
+────────────────────────────────────────────────────────── */
+function renderStats() {
+  recalcStreak();
+  const completedDays     = getOverallCompletion();
+  const totalDistractions = state.days.reduce((s, d) => s + d.distractions, 0);
+
+  document.getElementById('stats-completed').textContent    = completedDays;
+  document.getElementById('stats-streak').textContent       = state.streak;
+  document.getElementById('stats-best').textContent         = state.bestStreak;
+  document.getElementById('stats-distractions').textContent = totalDistractions;
+
+  // Completion chart
+  const chart = document.getElementById('stats-chart');
+  chart.innerHTML = '';
+  state.days.forEach((d, i) => {
+    const pct = getDayCompletion(i);
+    const h   = Math.max(pct * 80, pct > 0 ? 4 : 0);
+    const bar = document.createElement('div');
+    bar.className     = 'chart-bar';
+    bar.style.height  = h + 'px';
+    bar.style.opacity = pct >= 1 ? '1' : pct > 0 ? '0.5' : '0.15';
+    bar.title = `Day ${i+1}: ${Math.round(pct*100)}%`;
+    chart.appendChild(bar);
+  });
+
+  // Distraction chart
+  const dChart = document.getElementById('distraction-chart');
+  dChart.innerHTML = '';
+  const maxD = Math.max(...state.days.map(d => d.distractions), 1);
+  state.days.forEach((d, i) => {
+    const pct = d.distractions / maxD;
+    const h   = Math.max(pct * 80, d.distractions > 0 ? 4 : 0);
+    const bar = document.createElement('div');
+    bar.className        = 'chart-bar';
+    bar.style.height     = h + 'px';
+    bar.style.background = 'var(--red)';
+    bar.style.opacity    = d.distractions > 0 ? '0.7' : '0.15';
+    bar.title = `Day ${i+1}: ${d.distractions} distractions`;
+    dChart.appendChild(bar);
+  });
+
+  // Mood history
+  const moodGrid  = document.getElementById('mood-history-grid');
+  const moodEmoji = { low: '😴', normal: '😐', focused: '🔥' };
+  moodGrid.innerHTML = '';
+  state.days.forEach((d, i) => {
+    const dot = document.createElement('div');
+    dot.className   = 'mood-dot';
+    dot.title       = `Day ${i+1}: ${d.mood || 'No mood set'}`;
+    dot.textContent = d.mood ? moodEmoji[d.mood] : '·';
+    moodGrid.appendChild(dot);
+  });
+}
+
+/* ──────────────────────────────────────────────────────────
+   RENDER SETTINGS
+────────────────────────────────────────────────────────── */
+function renderSettings() {
+  if (state.reminderTime) {
+    document.getElementById('reminder-time').value = state.reminderTime;
+    document.getElementById('reminder-status').textContent = `✓ Reminder set for ${state.reminderTime}`;
+  }
+  document.getElementById('inapp-alerts').checked     = state.prefs.inappAlerts;
+  document.getElementById('smart-suggestions').checked = state.prefs.smartSuggestions;
+  document.getElementById('cloud-sync').checked        = state.prefs.cloudSync !== false;
+  renderDefaultTasks();
+  updateNotifBar();
+
+  // Show JSONBin status
+  const syncBar = document.getElementById('notif-permission-bar');
+  if (syncBar && !JSONBIN_BIN_ID) {
+    // We'll use this space to also nudge about sync setup
+  }
+}
+
+function renderDefaultTasks() {
+  const list = document.getElementById('default-tasks-list');
+  list.innerHTML = '';
+  state.defaultTasks.forEach((task, i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;';
+    row.innerHTML = `
+      <div style="flex:1;font-size:13px;color:var(--text2);">${escHtml(task.text)}</div>
+      <button class="btn-icon" onclick="removeDefaultTask(${i})">✕</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function addDefaultTask() {
+  const input = document.getElementById('new-default-task');
+  const text  = input.value.trim();
+  if (!text) return;
+  state.defaultTasks.push({ text, time: '' });
+  input.value = '';
+  saveState();
+  renderDefaultTasks();
+}
+
+function removeDefaultTask(idx) {
+  state.defaultTasks.splice(idx, 1);
+  saveState();
+  renderDefaultTasks();
+}
+
+function applyDefaultsToAllDays() {
+  let applied = 0;
+  state.days.forEach((day, i) => {
+    if (!day.tasks.length) {
+      day.tasks = state.defaultTasks.map((t, j) => ({
+        id: `d${i}_t${j}_${Date.now()}`, text: t.text, time: t.time || '', done: false
+      }));
+      applied++;
+    }
+  });
+  saveState();
+  toast(`Applied to ${applied} empty days`, 'success');
+}
+
+function savePref() {
+  state.prefs.inappAlerts      = document.getElementById('inapp-alerts').checked;
+  state.prefs.smartSuggestions = document.getElementById('smart-suggestions').checked;
+  state.prefs.cloudSync        = document.getElementById('cloud-sync').checked;
+  saveState();
+  if (state.prefs.cloudSync && JSONBIN_BIN_ID) startPolling();
+  else { stopPolling(); setSyncStatus('offline'); }
+}
+
+/* ──────────────────────────────────────────────────────────
+   REMINDERS (Native Browser Notification API)
+────────────────────────────────────────────────────────── */
+function setReminder() {
+  const time = document.getElementById('reminder-time').value;
+  if (!time) return;
+  state.reminderTime = time;
+  saveState();
+
+  if (!('Notification' in window)) {
+    document.getElementById('reminder-status').textContent =
+      'ℹ Notifications not supported in this browser — using in-app alerts';
+    scheduleInAppReminder(time);
+    return;
+  }
+
+  const perm = Notification.permission;
+  if (perm === 'granted') {
+    scheduleNotification(time);
+    document.getElementById('reminder-status').textContent = `✓ Reminder set for ${time}`;
+    toast('Reminder set for ' + time, 'success');
+  } else if (perm === 'denied') {
+    document.getElementById('reminder-status').textContent =
+      '⚠ Notifications blocked — using in-app alerts instead';
+    scheduleInAppReminder(time);
+    toast('Using in-app alerts (notifications blocked)', 'warning');
+  } else {
+    // 'default' — ask
+    Notification.requestPermission().then(p => {
+      updateNotifBar();
+      if (p === 'granted') {
+        scheduleNotification(time);
+        document.getElementById('reminder-status').textContent = `✓ Reminder set for ${time}`;
+        toast('Reminder set for ' + time, 'success');
+      } else {
+        scheduleInAppReminder(time);
+        document.getElementById('reminder-status').textContent =
+          '⚠ Using in-app alerts (notifications blocked)';
+        toast('Using in-app alerts instead', 'warning');
+      }
+    });
+  }
+}
+
+function clearReminder() {
+  state.reminderTime = null;
+  saveState();
+  if (reminderInterval) { clearInterval(reminderInterval); reminderInterval = null; }
+  document.getElementById('reminder-status').textContent = 'Reminder cleared';
+  toast('Reminder cleared', 'info');
+}
+
+/* Native notification: fires at the exact hour:minute daily */
+function scheduleNotification(time) {
+  if (reminderInterval) clearInterval(reminderInterval);
+  const fire = () => {
+    const now = new Date();
+    const [h, m] = time.split(':').map(Number);
+    if (now.getHours() === h && now.getMinutes() === m) {
+      try {
+        new Notification('Focus40 📚', {
+          body: 'Time to study! Open your tracker.',
+          tag:  'focus40-reminder',
+          renotify: true,
+        });
+      } catch(e) {}
+    }
+  };
+  fire();   // run immediately in case the page just opened at that time
+  reminderInterval = setInterval(fire, 60000);
+}
+
+/* In-app fallback: shows a toast at the reminder time */
+function scheduleInAppReminder(time) {
+  if (reminderInterval) clearInterval(reminderInterval);
+  reminderInterval = setInterval(() => {
+    const now = new Date();
+    const [h, m] = time.split(':').map(Number);
+    if (now.getHours() === h && now.getMinutes() === m && state.prefs.inappAlerts) {
+      toast('📚 Time to study! Open your tracker.', 'info');
+    }
+  }, 60000);
+}
+
+/* ──────────────────────────────────────────────────────────
+   RESET
+────────────────────────────────────────────────────────── */
+function confirmReset() {
+  if (confirm('Are you sure? This will erase ALL your data permanently.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    // Also clear the cloud bin if configured
+    if (JSONBIN_BIN_ID && JSONBIN_API_KEY) {
+      fetch(JSONBIN_URL, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': JSONBIN_API_KEY,
+          'X-Bin-Versioning': 'false',
+        },
+        body: JSON.stringify(defaultState()),
+      }).catch(() => {});
+    }
+    state      = defaultState();
+    currentDay = 0;
+    toast('Data reset. Fresh start! 🌱', 'info');
+    navigate('dashboard');
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
+   TOAST
+────────────────────────────────────────────────────────── */
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icons = { success: '✓', info: 'ℹ', warning: '⚠' };
+  t.innerHTML = `<span>${icons[type] || '•'}</span> ${msg}`;
+  container.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('out');
+    setTimeout(() => t.remove(), 300);
+  }, 2800);
+}
+
+/* ──────────────────────────────────────────────────────────
+   SERVICE WORKER (PWA offline support)
+────────────────────────────────────────────────────────── */
+function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('/sw.js', { scope: '/' })
+    .then(reg => { console.log('SW registered'); reg.update(); })
+    .catch(err => console.warn('SW registration failed:', err));
+}
+
+/* ──────────────────────────────────────────────────────────
+   INIT
+────────────────────────────────────────────────────────── */
+function init() {
+  registerSW();
+
+  // Restore reminder schedule from saved state
+  if (state.reminderTime) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      scheduleNotification(state.reminderTime);
+    } else {
+      scheduleInAppReminder(state.reminderTime);
+    }
+  }
+
+  // Initial sync: pull remote data then start polling
+  if (state.prefs.cloudSync !== false && JSONBIN_BIN_ID && JSONBIN_API_KEY) {
+    setSyncStatus('syncing');
+    pullFromCloud().then(() => startPolling());
+  } else if (!JSONBIN_BIN_ID) {
+    setSyncStatus('offline');
+  }
+
+  renderDashboard();
+  toast("Focus40 loaded. Let's study! 📚", 'success');
+}
+
+init();
+</script>
+</body>
+</html>
