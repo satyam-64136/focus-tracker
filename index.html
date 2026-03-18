@@ -1546,7 +1546,7 @@ function defaultState() {
     reminderTime: null,
     defaultTasks: DEFAULT_TASKS.slice(),
     prefs: { inappAlerts: true, smartSuggestions: true, cloudSync: true },
-    _ts: Date.now(),
+    _ts: 0,
   };
 }
 
@@ -1622,16 +1622,18 @@ async function pullFromCloud() {
     const remote = json.record;
     if (!remote || !Array.isArray(remote.days)) return;
 
-    // Only apply remote if it's newer than our local state
     const remoteTs = remote._ts || 0;
     const localTs  = state._ts  || 0;
-    if (remoteTs > localTs + 2000) {
+
+    // Always apply remote if:
+    // 1. Local has no real data (_ts === 0, e.g. incognito / fresh load)
+    // 2. Remote is genuinely newer than local
+    if (localTs === 0 || remoteTs > localTs + 500) {
       applyRemoteState(remote);
     } else {
       setSyncStatus('synced');
     }
   } catch(e) {
-    // Silent fail — offline or quota exceeded
     console.warn('JSONBin pull failed:', e.message);
   }
 }
@@ -1639,13 +1641,15 @@ async function pullFromCloud() {
 function applyRemoteState(remote) {
   Object.assign(state, remote);
   saveLocal();
-  // Re-render whatever section is visible
+  // Always re-render the active section
   const active = document.querySelector('.section.active');
-  if (!active) return;
-  const id = active.id;
+  const id = active ? active.id : 'section-dashboard';
   if (id === 'section-dashboard') renderDashboard();
-  if (id === 'section-tracker')   renderTracker();
-  if (id === 'section-stats')     renderStats();
+  else if (id === 'section-tracker') renderTracker();
+  else if (id === 'section-stats')   renderStats();
+  else if (id === 'section-settings') renderSettings();
+  // Also update sidebar streak regardless of section
+  document.getElementById('sidebar-streak').textContent = state.streak;
   setSyncStatus('synced');
   toast('Synced ✓', 'success');
 }
