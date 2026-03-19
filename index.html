@@ -1182,6 +1182,12 @@ h1, h2, h3, h4 {
   .nav-btn .icon { width: 16px; height: 16px; }
   .task-text { font-size: 12px; }
 }
+
+/* ── SVG ICONS ── */
+.ic { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ic svg { display:block; }
+.suggestion-icon .ic { opacity:0.7; }
+.streak-badge .ic svg { stroke: var(--amber); }
 </style>
 </head>
 
@@ -1212,7 +1218,7 @@ h1, h2, h3, h4 {
 
     <div class="sidebar-bottom">
       <div class="streak-badge">
-        <span class="fire">🔥</span>
+        <span class="fire ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg></span>
         <div class="streak-info">
           <div class="streak-num" id="sidebar-streak">0</div>
           <div class="streak-label">day streak</div>
@@ -1232,7 +1238,7 @@ h1, h2, h3, h4 {
     <!-- ========== DASHBOARD ========== -->
     <div id="section-dashboard" class="section active">
       <div class="page-header">
-        <h1>Good <span id="greeting-time">morning</span> ✦</h1>
+        <h1>Good <span id="greeting-time">morning</span></h1>
         <p id="today-date">Loading...</p>
       </div>
 
@@ -1242,8 +1248,8 @@ h1, h2, h3, h4 {
         <div class="hero-day">Day <span id="current-day-num">1</span><span style="color:var(--text3);font-size:36px">/40</span></div>
         <div class="hero-subtitle" id="hero-subtitle">Start your journey today</div>
         <div class="hero-actions">
-          <button class="btn btn-primary" onclick="navigate('tracker')">📋 Open Today's Tasks</button>
-          <button class="btn btn-secondary" onclick="logDistraction()">😵 Got Distracted</button>
+          <button class="btn btn-primary" onclick="navigate('tracker')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> Open Today's Tasks</button>
+          <button class="btn btn-secondary" onclick="logDistraction()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Got Distracted</button>
         </div>
       </div>
 
@@ -1255,7 +1261,7 @@ h1, h2, h3, h4 {
         </div>
         <div class="stat-card accent-amber">
           <div class="stat-label">Current Streak</div>
-          <div class="stat-value" id="dash-streak">0 🔥</div>
+          <div class="stat-value" id="dash-streak">0</div>
           <div class="stat-sub">consecutive days</div>
         </div>
         <div class="stat-card">
@@ -1284,9 +1290,9 @@ h1, h2, h3, h4 {
       <div class="card" style="margin-bottom:24px;">
         <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">How are you feeling before your study session?</div>
         <div class="mood-selector" id="dash-mood-selector">
-          <div class="mood-option" data-mood="low"     onclick="setMood('low')">😴 Low</div>
-          <div class="mood-option" data-mood="normal"  onclick="setMood('normal')">😐 Normal</div>
-          <div class="mood-option" data-mood="focused" onclick="setMood('focused')">🔥 Focused</div>
+          <div class="mood-option" data-mood="low" onclick="setMood('low')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg> Low</div>
+          <div class="mood-option" data-mood="normal" onclick="setMood('normal')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Normal</div>
+          <div class="mood-option" data-mood="focused" onclick="setMood('focused')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Focused</div>
         </div>
       </div>
 
@@ -1362,7 +1368,7 @@ h1, h2, h3, h4 {
         <div class="stat-card accent-amber">
           <div class="stat-label">Current Streak</div>
           <div class="stat-value" id="stats-streak">0</div>
-          <div class="stat-sub">days 🔥</div>
+          <div class="stat-sub">days</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Best Streak</div>
@@ -1404,7 +1410,7 @@ h1, h2, h3, h4 {
 
       <div class="section-title">Study Reminder</div>
       <div class="reminder-card">
-        <h3>⏰ Daily Reminder</h3>
+        <h3><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:7px;vertical-align:middle"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Daily Reminder</h3>
         <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Set a daily notification to remind you to study.</div>
         <div id="notif-permission-bar" style="display:none;margin-bottom:12px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;color:var(--text2);"></div>
         <div class="time-input-row">
@@ -1461,7 +1467,7 @@ h1, h2, h3, h4 {
       </div>
 
       <div class="danger-zone">
-        <h3>⚠ Danger Zone</h3>
+        <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" style="margin-right:6px;vertical-align:middle"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Danger Zone</h3>
         <p>This will erase all your progress, tasks, and stats permanently.</p>
         <button class="btn btn-danger" onclick="confirmReset()">Reset All Data</button>
       </div>
@@ -1509,10 +1515,17 @@ const STORAGE_KEY = 'focus40_v2';
 const TOTAL_DAYS  = 40;
 
 const DEFAULT_TASKS = [
-  { text: "Review yesterday's notes",      time: '15m' },
-  { text: 'Main study session',            time: '90m' },
-  { text: 'Practice problems / exercises', time: '45m' },
-  { text: 'Summarize what you learned',    time: '10m' },
+  { text: "Woke up early (on time)",                  time: "—" },
+  { text: "Started day without distractions",         time: "—" },
+  { text: "Attended classes",                         time: "—" },
+  { text: "Subject 1 – Core Study (deep focus)",      time: "60–90m" },
+  { text: "Subject 1 – Practice (questions)",         time: "30–45m" },
+  { text: "Subject 2 – Core Study (deep focus)",      time: "60–90m" },
+  { text: "Subject 2 – Practice (questions)",         time: "30–45m" },
+  { text: "Revision (both subjects)",                 time: "15–20m" },
+  { text: "Noted mistakes / weak areas",              time: "10m" },
+  { text: "Stayed consistent (no long distractions)", time: "—" },
+  { text: "Completed planned study hours",            time: "—" },
 ];
 
 let state        = loadLocal();
@@ -1644,10 +1657,32 @@ async function pullFromCloud(forceApply = false) {
 }
 
 function applyRemoteState(remote) {
-  const remoteTs = remote._ts || 0;
+  const remoteTs        = remote._ts || 0;
+  const prevReminder    = state.reminderTime; // capture before overwrite
   Object.assign(state, remote);
   state._ts = remoteTs; // preserve remote timestamp — do NOT overwrite with local time
-  saveLocal();          // saveLocal no longer touches _ts, so remote ts is safe
+  saveLocal();
+
+  // If reminder time changed via remote, reschedule it
+  if (state.reminderTime !== prevReminder) {
+    if (reminderInterval) { clearInterval(reminderInterval); reminderInterval = null; }
+    if (state.reminderTime) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        scheduleNotification(state.reminderTime);
+      } else {
+        scheduleInAppReminder(state.reminderTime);
+      }
+    }
+    // Update reminder UI if settings is open
+    const inp = document.getElementById('reminder-time');
+    const sts = document.getElementById('reminder-status');
+    if (inp && state.reminderTime) inp.value = state.reminderTime;
+    if (sts && state.reminderTime)
+      sts.textContent = '\u2713 Reminder set for ' + state.reminderTime;
+    else if (sts && !state.reminderTime)
+      sts.textContent = '';
+  }
+
   // Re-render whichever section is active
   const active = document.querySelector('.section.active');
   const id = active ? active.id : 'section-dashboard';
@@ -1657,7 +1692,7 @@ function applyRemoteState(remote) {
   else if (id === 'section-settings') renderSettings();
   document.getElementById('sidebar-streak').textContent = state.streak;
   setSyncStatus('synced');
-  toast('Synced ✓', 'success');
+  toast('Synced', 'success');
 }
 
 function startPolling() {
@@ -1697,9 +1732,9 @@ function updateNotifBar() {
   if (p === 'granted') { bar.style.display = 'none'; return; }
   bar.style.display = 'block';
   if (p === 'denied') {
-    bar.textContent = '🔕 Notifications blocked. Enable them in your browser site settings.';
+    bar.textContent = 'Notifications blocked. Enable them in your browser site settings.';
   } else {
-    bar.innerHTML = '🔔 Enable notifications to get daily study reminders. <button class="btn btn-secondary btn-sm" style="margin-left:8px;" onclick="requestNotifPermission()">Enable</button>';
+    bar.innerHTML = 'Enable notifications to get daily study reminders. <button class="btn btn-secondary btn-sm" style="margin-left:8px;" onclick="requestNotifPermission()">Enable</button>';
   }
 }
 
@@ -1800,7 +1835,7 @@ function renderDashboard() {
   const overallPct    = Math.round((completedDays / TOTAL_DAYS) * 100);
 
   document.getElementById('dash-completed').textContent    = completedDays;
-  document.getElementById('dash-streak').textContent       = state.streak + ' 🔥';
+  document.getElementById('dash-streak').textContent       = state.streak;
   document.getElementById('dash-best').textContent         = state.bestStreak;
   document.getElementById('dash-distractions').textContent = state.days[todayIdx].distractions;
   document.getElementById('dash-pct').textContent          = overallPct + '%';
@@ -1847,11 +1882,11 @@ function renderSuggestions() {
   }
   let msg = '';
   if (missed >= 2) {
-    msg = `<div class="suggestion-banner"><div class="suggestion-icon">💡</div><div class="suggestion-text"><strong>Catch-up mode:</strong> You've missed a few days. Try a lighter session today — even completing 2 tasks counts as progress!</div></div>`;
+    msg = `<div class="suggestion-banner"><div class="suggestion-icon ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0018 8 6 6 0 006 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 018.91 14"/></svg></div><div class="suggestion-text"><strong>Catch-up mode:</strong> You've missed a few days. Try a lighter session today — even completing 2 tasks counts as progress!</div></div>`;
   } else if (missed === 1) {
-    msg = `<div class="suggestion-banner"><div class="suggestion-icon">✨</div><div class="suggestion-text"><strong>Bounce back:</strong> You missed yesterday. No worries — start fresh today. A short session is better than none.</div></div>`;
+    msg = `<div class="suggestion-banner"><div class="suggestion-icon ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div><div class="suggestion-text"><strong>Bounce back:</strong> You missed yesterday. No worries — start fresh today. A short session is better than none.</div></div>`;
   } else if (state.streak >= 5) {
-    msg = `<div class="suggestion-banner"><div class="suggestion-icon">🔥</div><div class="suggestion-text"><strong>On fire!</strong> ${state.streak}-day streak — you're building a great habit. Keep it up!</div></div>`;
+    msg = `<div class="suggestion-banner"><div class="suggestion-icon ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg></div><div class="suggestion-text"><strong>On fire!</strong> ${state.streak}-day streak — you're building a great habit. Keep it up!</div></div>`;
   }
   area.innerHTML = msg;
 }
@@ -1919,7 +1954,7 @@ function toggleTask(taskId) {
   saveState();
   recalcStreak();
   renderTracker();
-  if (day.tasks.every(t => t.done)) toast('Day ' + (currentDay + 1) + ' complete! 🎉', 'success');
+  if (day.tasks.every(t => t.done)) toast('Day ' + (currentDay + 1) + ' complete!', 'success');
   else toast('Progress saved', 'success');
   document.getElementById('sidebar-streak').textContent = state.streak;
 }
@@ -1962,7 +1997,7 @@ function logDistraction() {
   saveState();
   document.getElementById('dash-distractions').textContent    = state.days[todayIdx].distractions;
   document.getElementById('tracker-distractions').textContent = state.days[todayIdx].distractions;
-  toast('Distraction logged. Refocus! 💪', 'warning');
+  toast('Distraction logged. Refocus!', 'warning');
 }
 
 function resetDayDistractions() {
@@ -2017,7 +2052,7 @@ function renderStats() {
 
   // Mood history
   const moodGrid  = document.getElementById('mood-history-grid');
-  const moodEmoji = { low: '😴', normal: '😐', focused: '🔥' };
+  const moodEmoji = { low: 'Low', normal: 'Ok', focused: 'On' };
   moodGrid.innerHTML = '';
   state.days.forEach((d, i) => {
     const dot = document.createElement('div');
@@ -2032,9 +2067,14 @@ function renderStats() {
    RENDER SETTINGS
 ────────────────────────────────────────────────────────── */
 function renderSettings() {
+  const inp = document.getElementById('reminder-time');
+  const sts = document.getElementById('reminder-status');
   if (state.reminderTime) {
-    document.getElementById('reminder-time').value = state.reminderTime;
-    document.getElementById('reminder-status').textContent = `✓ Reminder set for ${state.reminderTime}`;
+    inp.value = state.reminderTime;
+    sts.textContent = '\u2713 Reminder set for ' + state.reminderTime;
+  } else {
+    inp.value = '09:00';
+    sts.textContent = '';
   }
   document.getElementById('inapp-alerts').checked     = state.prefs.inappAlerts;
   document.getElementById('smart-suggestions').checked = state.prefs.smartSuggestions;
@@ -2121,7 +2161,7 @@ function setReminder() {
   const perm = Notification.permission;
   if (perm === 'granted') {
     scheduleNotification(time);
-    document.getElementById('reminder-status').textContent = `✓ Reminder set for ${time}`;
+    document.getElementById('reminder-status').textContent = '✓ Reminder set for ' + time;
     toast('Reminder set for ' + time, 'success');
   } else if (perm === 'denied') {
     document.getElementById('reminder-status').textContent =
@@ -2134,7 +2174,7 @@ function setReminder() {
       updateNotifBar();
       if (p === 'granted') {
         scheduleNotification(time);
-        document.getElementById('reminder-status').textContent = `✓ Reminder set for ${time}`;
+        document.getElementById('reminder-status').textContent = '✓ Reminder set for ' + time;
         toast('Reminder set for ' + time, 'success');
       } else {
         scheduleInAppReminder(time);
@@ -2150,40 +2190,71 @@ function clearReminder() {
   state.reminderTime = null;
   saveState();
   if (reminderInterval) { clearInterval(reminderInterval); reminderInterval = null; }
-  document.getElementById('reminder-status').textContent = 'Reminder cleared';
+  const sts = document.getElementById('reminder-status');
+  if (sts) sts.textContent = 'Reminder cleared';
+  const inp = document.getElementById('reminder-time');
+  if (inp) inp.value = '09:00';
   toast('Reminder cleared', 'info');
 }
 
-/* Native notification: fires at the exact hour:minute daily */
+/* Native notification: aligned to minute boundary, fires once per minute */
 function scheduleNotification(time) {
-  if (reminderInterval) clearInterval(reminderInterval);
+  if (reminderInterval) { clearInterval(reminderInterval); reminderInterval = null; }
+
+  let _lastFiredMinute = -1; // track which minute we last fired to avoid double-fire
+
   const fire = () => {
     const now = new Date();
     const [h, m] = time.split(':').map(Number);
-    if (now.getHours() === h && now.getMinutes() === m) {
-      try {
-        new Notification('Focus40 📚', {
-          body: 'Time to study! Open your tracker.',
-          tag:  'focus40-reminder',
-          renotify: true,
-        });
-      } catch(e) {}
+    const minuteKey = now.getHours() * 60 + now.getMinutes();
+    if (now.getHours() === h && now.getMinutes() === m && _lastFiredMinute !== minuteKey) {
+      _lastFiredMinute = minuteKey;
+      if (Notification.permission === 'granted') {
+        try {
+          new Notification('Focus40 — Time to Study', {
+            body: 'Time to study! Open your tracker.',
+            tag:  'focus40-reminder',
+            renotify: true,
+          });
+        } catch(e) {}
+      } else if (state.prefs.inappAlerts) {
+        toast('Time to study! Open your tracker.', 'info');
+      }
     }
   };
-  fire();   // run immediately in case the page just opened at that time
-  reminderInterval = setInterval(fire, 60000);
+
+  // Align to the next minute boundary so we don't miss the exact minute
+  const now = new Date();
+  const msToNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds() + 200;
+  setTimeout(() => {
+    fire(); // check at the minute boundary
+    reminderInterval = setInterval(fire, 60000);
+  }, msToNextMinute);
 }
 
-/* In-app fallback: shows a toast at the reminder time */
+/* In-app fallback: aligned to minute boundary */
 function scheduleInAppReminder(time) {
-  if (reminderInterval) clearInterval(reminderInterval);
-  reminderInterval = setInterval(() => {
+  if (reminderInterval) { clearInterval(reminderInterval); reminderInterval = null; }
+
+  let _lastFiredMinute = -1;
+
+  const fire = () => {
     const now = new Date();
     const [h, m] = time.split(':').map(Number);
-    if (now.getHours() === h && now.getMinutes() === m && state.prefs.inappAlerts) {
-      toast('📚 Time to study! Open your tracker.', 'info');
+    const minuteKey = now.getHours() * 60 + now.getMinutes();
+    if (now.getHours() === h && now.getMinutes() === m
+        && state.prefs.inappAlerts && _lastFiredMinute !== minuteKey) {
+      _lastFiredMinute = minuteKey;
+      toast('Time to study! Open your tracker.', 'info');
     }
-  }, 60000);
+  };
+
+  const now = new Date();
+  const msToNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds() + 200;
+  setTimeout(() => {
+    fire();
+    reminderInterval = setInterval(fire, 60000);
+  }, msToNextMinute);
 }
 
 /* ──────────────────────────────────────────────────────────
@@ -2206,7 +2277,7 @@ function confirmReset() {
     }
     state      = defaultState();
     currentDay = 0;
-    toast('Data reset. Fresh start! 🌱', 'info');
+    toast('Data reset. Fresh start.', 'info');
     navigate('dashboard');
   }
 }
@@ -2261,7 +2332,7 @@ function init() {
   }
 
   renderDashboard();
-  toast("Focus40 loaded. Let's study! 📚", 'success');
+  toast("Focus40 loaded.", 'success');
 }
 
 init();
