@@ -1562,7 +1562,7 @@ function loadLocal() {
 }
 
 function saveLocal() {
-  state._ts = Date.now();
+  // Do NOT touch _ts here — only saveState (user action) stamps the time
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
 }
 
@@ -1570,6 +1570,7 @@ function saveLocal() {
    SAVE = local + throttled cloud push
 ────────────────────────────────────────────────────────── */
 function saveState() {
+  state._ts = Date.now();   // stamp time only on real user actions
   saveLocal();
   if (state.prefs.cloudSync && JSONBIN_BIN_ID && JSONBIN_API_KEY) {
     schedulePush();
@@ -1611,44 +1612,49 @@ async function pushToCloud() {
    JSONBIN SYNC — PULL (read)
    Called once on load + every 30s for cross-device sync
 ────────────────────────────────────────────────────────── */
-async function pullFromCloud() {
+async function pullFromCloud(forceApply = false) {
   if (!JSONBIN_BIN_ID || !JSONBIN_API_KEY) return;
   try {
     const res = await fetch(JSONBIN_URL + '/latest', {
       headers: { 'X-Master-Key': JSONBIN_API_KEY },
     });
-    if (!res.ok) return;
+    if (!res.ok) {
+      setSyncStatus('error');
+      return;
+    }
     const json = await res.json();
     const remote = json.record;
     if (!remote || !Array.isArray(remote.days)) return;
 
-    const remoteTs = remote._ts || 0;
-    const localTs  = state._ts  || 0;
+    const remoteTs   = remote._ts || 0;
+    const justPushed = (Date.now() - _lastPushTs) < 5000; // we pushed < 5s ago
 
-    // Always apply remote if:
-    // 1. Local has no real data (_ts === 0, e.g. incognito / fresh load)
-    // 2. Remote is genuinely newer than local
-    if (localTs === 0 || remoteTs > localTs + 500) {
+    // Apply remote if:
+    // - forceApply (page load — always get latest)
+    // - OR remote is newer than our last push (another device made changes)
+    if (forceApply || (!justPushed && remoteTs > _lastPushTs)) {
       applyRemoteState(remote);
     } else {
       setSyncStatus('synced');
     }
   } catch(e) {
     console.warn('JSONBin pull failed:', e.message);
+    setSyncStatus('error');
   }
 }
 
 function applyRemoteState(remote) {
+  const remoteTs = remote._ts || 0;
   Object.assign(state, remote);
-  saveLocal();
-  // Always re-render the active section
+  state._ts = remoteTs; // preserve remote timestamp — do NOT overwrite with local time
+  saveLocal();          // saveLocal no longer touches _ts, so remote ts is safe
+  // Re-render whichever section is active
   const active = document.querySelector('.section.active');
   const id = active ? active.id : 'section-dashboard';
-  if (id === 'section-dashboard') renderDashboard();
-  else if (id === 'section-tracker') renderTracker();
-  else if (id === 'section-stats')   renderStats();
+  if (id === 'section-dashboard')  renderDashboard();
+  else if (id === 'section-tracker')  renderTracker();
+  else if (id === 'section-stats')    renderStats();
   else if (id === 'section-settings') renderSettings();
-  // Also update sidebar streak regardless of section
   document.getElementById('sidebar-streak').textContent = state.streak;
   setSyncStatus('synced');
   toast('Synced ✓', 'success');
@@ -1656,8 +1662,8 @@ function applyRemoteState(remote) {
 
 function startPolling() {
   if (_polling) clearInterval(_polling);
-  // Pull every 30 seconds to pick up changes from other devices
-  _polling = setInterval(pullFromCloud, 30000);
+  // Poll every 15s — picks up other device changes quickly
+  _polling = setInterval(() => pullFromCloud(false), 15000);
 }
 
 function stopPolling() {
@@ -2246,10 +2252,10 @@ function init() {
     }
   }
 
-  // Initial sync: pull remote data then start polling
+  // Initial sync: always force-apply remote on page load, then poll
   if (state.prefs.cloudSync !== false && JSONBIN_BIN_ID && JSONBIN_API_KEY) {
     setSyncStatus('syncing');
-    pullFromCloud().then(() => startPolling());
+    pullFromCloud(true).then(() => startPolling()); // forceApply=true: always get latest
   } else if (!JSONBIN_BIN_ID) {
     setSyncStatus('offline');
   }
